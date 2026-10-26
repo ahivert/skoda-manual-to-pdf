@@ -2,40 +2,51 @@
 
 Export the documentation Škoda returns for a VIN and language into one searchable PDF, with images, a clickable contents list and PDF bookmarks. Infotainment sections are included in the digital manual. Additional documents returned by the lookup are included, not inferred from another model/year.
 
-## Install
+## Quick start
 
-Requires Python 3.11+ and [uv](https://docs.astral.sh/uv/).
-
-```sh
-uv sync --frozen
-```
-
-On first use, the CLI offers to download Chromium if it is missing. Answer `y` to install the version required by the CLI; subsequent runs reuse it. The download requires internet access and several hundred MB of disk space. Installation is never attempted without consent.
-
-You can also run directly from GitHub without cloning:
+Install [uv](https://docs.astral.sh/uv/getting-started/installation/) (which includes `uvx`), then run this command from any directory:
 
 ```sh
-uvx --from git+https://github.com/ahivert/skoda-manual-to-pdf.git skoda-manual --language fr --output manual.pdf
+uvx --from https://github.com/ahivert/skoda-manual-to-pdf/archive/refs/heads/main.zip skoda-manual
 ```
 
-For non-interactive use, install the browser beforehand with `uv run playwright install chromium` (from a local checkout). On Linux, if Chromium reports missing system libraries, install them with `uv run playwright install-deps chromium` (may require administrator privileges). The CLI never installs system libraries or requests administrator access automatically.
+No Git installation, cloning, Python environment setup, or project installation is needed. `uvx` manages Python 3.11+ and the dependencies for you.
 
-## Use
+1. Enter your VIN privately when prompted (it stays out of your shell history).
+2. If Chromium is missing, answer `y` to download it. Subsequent runs reuse it.
+3. Choose a language. The PDF is saved in your current directory as `manual-LANGUAGE.pdf`.
 
-Run these commands from this directory:
+The first run needs internet access and several hundred MB of disk space for Chromium. Installation is never attempted without consent.
+
+## Options
 
 ```sh
-# Prompts for the VIN privately, keeping it out of your shell history.
-uv run skoda-manual --language fr --output manual-fr.pdf
+# Choose French and a specific output filename.
+uvx --from https://github.com/ahivert/skoda-manual-to-pdf/archive/refs/heads/main.zip skoda-manual --language fr --output manual-fr.pdf
 
-# Discover the languages available for your VIN.
-uv run skoda-manual --list-languages
-
-# Alternatively, supply a VIN as a positional argument.
-uv run skoda-manual YOUR_17_CHARACTER_VIN --language en --output manual-en.pdf
+# List the languages available for your VIN.
+uvx --from https://github.com/ahivert/skoda-manual-to-pdf/archive/refs/heads/main.zip skoda-manual --list-languages
 ```
 
-Omit `--language` to choose interactively. Existing output files are never overwritten. The output directory must already exist.
+Existing output files are never overwritten. The output directory must already exist.
+
+## Troubleshooting
+
+For non-interactive use, install the browser beforehand:
+
+```sh
+uvx --from https://github.com/ahivert/skoda-manual-to-pdf/archive/refs/heads/main.zip playwright install chromium
+```
+
+On Linux, if Chromium reports missing system libraries:
+
+```sh
+uvx --from https://github.com/ahivert/skoda-manual-to-pdf/archive/refs/heads/main.zip playwright install-deps chromium
+```
+
+System library installation may require administrator privileges. The CLI never installs system libraries or requests administrator access automatically.
+
+To refresh the cached application after an update, add `--refresh` immediately after `uvx`.
 
 ## How it works
 
@@ -51,12 +62,14 @@ No browser extension, account, copied cookies, proxy, or running backend is requ
 
 An unavailable chapter, image, or document aborts the export instead of silently generating an incomplete PDF. Downloaded content remains in memory; only the final PDF is saved. Failed runs must restart; caching and resume are intentionally omitted.
 
-## Verify
+## Development
+
+For contributors, from a local checkout:
 
 ```sh
-uv run python -m pytest tests -q
-uv run ruff check skoda_manual.py tests
-uv build
+uvx --with-editable . pytest tests -q
+uvx ruff check skoda_manual.py tests
+uvx --from build pyproject-build
 ```
 
 Tests cover first-run browser installation prompts, VIN validation, complete tree traversal, safe image URLs, HTML cleanup, root-index removal, compact contents, expired-session errors, overwrite protection, and offline PDF rendering with bookmarks and links. Pagination tests check chapter boundaries, running headers and global numbering without losing PDF navigation. The PDF test requires the Chromium installation above but does not access the internet.

@@ -339,7 +339,8 @@ async def launch_browser(playwright):
     if not sys.stdin.isatty():
         raise ValueError(
             'Chromium is missing. Run interactively to install it, or run '
-            'python -m playwright install chromium in the CLI environment.'
+            'uvx --from https://github.com/ahivert/skoda-manual-to-pdf/archive/refs/heads/main.zip '
+            'playwright install chromium.'
         )
     answer = input('Chromium is missing. Download and install it now? [y/N] ').strip().lower()
     if answer not in {'y', 'yes'}:

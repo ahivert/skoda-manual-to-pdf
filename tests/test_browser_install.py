@@ -44,8 +44,10 @@ def test_declining_install_does_not_download(monkeypatch):
 def test_noninteractive_run_explains_how_to_install_without_prompting(monkeypatch):
     monkeypatch.setattr(sys.stdin, 'isatty', lambda: False)
     monkeypatch.setattr('builtins.input', lambda _: pytest.fail('Unexpected prompt'))
-    with pytest.raises(ValueError, match='playwright install chromium'):
+    with pytest.raises(ValueError, match='playwright install chromium') as caught:
         asyncio.run(launch_browser(runtime(BrowserError("Executable doesn't exist at /missing"))))
+    assert ('uvx --from https://github.com/ahivert/skoda-manual-to-pdf/archive/refs/heads/main.zip'
+            in str(caught.value))
 
 
 def test_other_browser_errors_are_not_misdiagnosed_as_missing_chromium(monkeypatch):
