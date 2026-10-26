@@ -5,6 +5,7 @@ import asyncio
 import base64
 import re
 import sys
+import unicodedata
 from getpass import getpass
 from html import escape
 from io import BytesIO
@@ -26,6 +27,14 @@ def normalize_vin(value):
     if not re.fullmatch(r'[A-HJ-NPR-Z0-9]{17}', vin):
         raise argparse.ArgumentTypeError('VIN must contain 17 letters/digits (excluding I, O, Q).')
     return vin
+
+
+def default_output(model, language):
+    model = unicodedata.normalize('NFKD', model).encode('ascii', 'ignore').decode()
+    slug = re.sub(r'[^a-z0-9]+', '-', model.lower()).strip('-') or 'manual'
+    if slug != 'skoda' and not slug.startswith('skoda-'):
+        slug = 'skoda-' + slug
+    return Path(f'{slug}-{language}.pdf')
 
 
 def flatten_tree(trees):
@@ -372,21 +381,27 @@ async def export(vin, language, output, list_languages=False):
             selected = next((item for item in languages if item['code'] == language), None)
             if not selected:
                 raise ValueError('Choose a language code returned by --list-languages.')
-            output = output or Path(f'manual-{language}.pdf')
-            if output.exists():
-                raise FileExistsError(f'{output} already exists; choose another output path.')
-            if not output.parent.is_dir():
-                raise ValueError('The output directory must already exist.')
             data = await request_json(request, CATALOGUE + 'Manuals', {'vin': vin, 'language': language})
             documents = data.get('results', [])
             if not documents:
                 raise ValueError('No documents were returned for this VIN and language.')
-            writer = PdfWriter()
-            header_chapters, document_titles = [], []
+            manuals = []
             if any(doc.get('manualType') == 'Digital' for doc in documents):
                 print('Opening an ephemeral manual session…', file=sys.stderr)
                 page = await context.new_page()
                 manuals = await open_manuals(page, vin, selected['title'])
+            model = (manuals[0]['title'].splitlines()[0] if manuals else next(
+                (doc['pdfManual']['model'] for doc in documents
+                 if (doc.get('pdfManual') or {}).get('model')), ''
+            ))
+            output = output or default_output(model, language)
+            if output.exists():
+                raise FileExistsError(f'{output} already exists; choose another output path.')
+            if not output.parent.is_dir():
+                raise ValueError('The output directory must already exist.')
+            writer = PdfWriter()
+            header_chapters, document_titles = [], []
+            if manuals:
                 for manual in manuals:
                     parts = urlsplit(manual['url'])
                     if parts.scheme != 'https' or parts.netloc != 'digital-manual.skoda-auto.com':
@@ -447,7 +462,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('vin', nargs='?', type=normalize_vin, help='VIN (prompted privately when omitted)')
     parser.add_argument('-l', '--language', help='Manual language code, e.g. fr or en')
-    parser.add_argument('-o', '--output', type=Path, help='Output PDF (default: manual-LANGUAGE.pdf)')
+    parser.add_argument('-o', '--output', type=Path, help='Output PDF (default: skoda-MODEL-LANGUAGE.pdf)')
     parser.add_argument('--list-languages', action='store_true', help='List languages without downloading manuals')
     args = parser.parse_args()
     try:

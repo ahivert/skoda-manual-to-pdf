@@ -14,7 +14,7 @@ No Git installation, cloning, Python environment setup, or project installation 
 
 1. Enter your VIN privately when prompted (it stays out of your shell history).
 2. If Chromium is missing, answer `y` to download it. Subsequent runs reuse it.
-3. Choose a language. The PDF is saved in your current directory as `manual-LANGUAGE.pdf`.
+3. Choose a language. The PDF is saved in your current directory using the detected model and language, for example `skoda-enyaq-coupe-fr.pdf`.
 
 The first run needs internet access and several hundred MB of disk space for Chromium. Installation is never attempted without consent.
 
@@ -28,7 +28,7 @@ uvx --from https://github.com/ahivert/skoda-manual-to-pdf/archive/refs/heads/mai
 uvx --from https://github.com/ahivert/skoda-manual-to-pdf/archive/refs/heads/main.zip skoda-manual --list-languages
 ```
 
-Existing output files are never overwritten. The output directory must already exist.
+The default filename is `skoda-MODEL-LANGUAGE.pdf`, with accents and unsafe filename characters removed. `--output` overrides this name. Existing output files are never overwritten. The output directory must already exist.
 
 ## Troubleshooting
 
