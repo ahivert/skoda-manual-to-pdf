@@ -4,9 +4,9 @@ Export the documentation Škoda returns for a VIN and language into one searchab
 
 ## PDF preview
 
-Sample page from a generated French Škoda Enyaq Coupé manual, showing illustrations, chapter headers and page numbering.
+Sample page from a generated English Škoda Enyaq Coupé manual, showing illustrations, chapter headers and page numbering.
 
-<img src="docs/images/pdf-sample.png" alt="Generated PDF page showing the Enyaq Coupé vehicle overview with a labelled illustration, chapter header and page number" width="600">
+<img src="docs/images/pdf-sample.png" alt="Generated English PDF page showing the Enyaq Coupé vehicle overview with a labelled illustration, chapter header and page number" width="600">
 
 Source manual text and illustrations © Škoda Auto a.s.
 
