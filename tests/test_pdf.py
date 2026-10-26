@@ -5,13 +5,13 @@ from io import BytesIO
 from playwright.async_api import async_playwright
 from pypdf import PdfReader, PdfWriter
 
-from skoda_manual import make_document, render_pdf
+from skoda_manual import launch_browser, make_document, render_pdf
 
 
 def test_offline_pdf_has_text_images_outline_and_clickable_toc():
     async def render():
         async with async_playwright() as playwright:
-            browser = await playwright.chromium.launch()
+            browser = await launch_browser(playwright)
             try:
                 nodes = [
                     {'label': 'Notice', 'anchor': 'root', 'target': None, 'depth': 0},

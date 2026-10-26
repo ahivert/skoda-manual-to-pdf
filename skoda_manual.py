@@ -330,9 +330,31 @@ footer {{ position: absolute; bottom: 7mm; width: 100%; text-align: center; }}
     return result.getvalue()
 
 
+async def launch_browser(playwright):
+    try:
+        return await playwright.chromium.launch()
+    except BrowserError as error:
+        if "Executable doesn't exist at" not in str(error):
+            raise
+    if not sys.stdin.isatty():
+        raise ValueError(
+            'Chromium is missing. Run interactively to install it, or run '
+            'python -m playwright install chromium in the CLI environment.'
+        )
+    answer = input('Chromium is missing. Download and install it now? [y/N] ').strip().lower()
+    if answer not in {'y', 'yes'}:
+        raise ValueError('Chromium installation cancelled; no manual was downloaded.')
+    process = await asyncio.create_subprocess_exec(
+        sys.executable, '-m', 'playwright', 'install', 'chromium',
+    )
+    if await process.wait() != 0:
+        raise ValueError('Chromium installation failed; check network access and available disk space.')
+    return await playwright.chromium.launch()
+
+
 async def export(vin, language, output, list_languages=False):
     async with async_playwright() as playwright:
-        browser = await playwright.chromium.launch()
+        browser = await launch_browser(playwright)
         try:
             context = await browser.new_context()
             request = context.request

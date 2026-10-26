@@ -8,10 +8,17 @@ Requires Python 3.11+ and [uv](https://docs.astral.sh/uv/).
 
 ```sh
 uv sync --frozen
-uv run playwright install chromium
 ```
 
-On Linux, if Chromium reports missing system libraries, install them with `uv run playwright install-deps chromium` (may require administrator privileges).
+On first use, the CLI offers to download Chromium if it is missing. Answer `y` to install the version required by the CLI; subsequent runs reuse it. The download requires internet access and several hundred MB of disk space. Installation is never attempted without consent.
+
+You can also run directly from GitHub without cloning:
+
+```sh
+uvx --from git+https://github.com/ahivert/skoda-manual-to-pdf.git skoda-manual --language fr --output manual.pdf
+```
+
+For non-interactive use, install the browser beforehand with `uv run playwright install chromium` (from a local checkout). On Linux, if Chromium reports missing system libraries, install them with `uv run playwright install-deps chromium` (may require administrator privileges). The CLI never installs system libraries or requests administrator access automatically.
 
 ## Use
 
@@ -52,7 +59,7 @@ uv run ruff check skoda_manual.py tests
 uv build
 ```
 
-Tests cover VIN validation, complete tree traversal, safe image URLs, HTML cleanup, root-index removal, compact contents, expired-session errors, overwrite protection, and offline PDF rendering with bookmarks and links. Pagination tests check chapter boundaries, running headers and global numbering without losing PDF navigation. The PDF test requires the Chromium installation above but does not access the internet.
+Tests cover first-run browser installation prompts, VIN validation, complete tree traversal, safe image URLs, HTML cleanup, root-index removal, compact contents, expired-session errors, overwrite protection, and offline PDF rendering with bookmarks and links. Pagination tests check chapter boundaries, running headers and global numbering without losing PDF navigation. The PDF test requires the Chromium installation above but does not access the internet.
 
 ## Limitations
 
