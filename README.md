@@ -2,6 +2,14 @@
 
 Export the documentation Škoda returns for a VIN and language into one searchable PDF, with images, a clickable contents list and PDF bookmarks. Infotainment sections are included in the digital manual. Additional documents returned by the lookup are included, not inferred from another model/year.
 
+## PDF preview
+
+Sample page from a generated French Škoda Enyaq Coupé manual, showing illustrations, chapter headers and page numbering. No VIN is included in this preview.
+
+<img src="docs/images/pdf-sample.png" alt="Generated PDF page showing the Enyaq Coupé vehicle overview with a labelled illustration, chapter header and page number" width="600">
+
+Source manual text and illustrations © Škoda Auto a.s.
+
 ## Quick start
 
 Install [uv](https://docs.astral.sh/uv/getting-started/installation/) (which includes `uvx`), then run this command from any directory:
